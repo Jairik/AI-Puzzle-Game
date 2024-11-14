@@ -16,7 +16,7 @@ class puzzleSolver:
         self.movement_cost = m_cost  # Hardcoded movement cost (will always be 1 more than parent)
         
     '''Calculates the scaled Manhattan Distance of the provided board, also considering linear conflicts'''
-    def heuristic(self, board) -> int:
+    def heuristic(self, board) -> float:
         total_distance = 0
         for i in range(4):
             for j in range(4):
@@ -24,25 +24,25 @@ class puzzleSolver:
                 if tile != 0:
                     target_i, target_j = divmod(tile - 1, 4)  # Get target i, j
                     total_distance += abs(target_i - i) + abs(target_j - j)  # Add the distance of each
-                    # Checking for and penalizing any linear conflicts
-                    if target_i == i:  # Linear conflicts in row
-                        for k in range(j+1, 4):  # Checking all tiles to the right
-                            other_tile = board[i][k]
-                            if other_tile != 0:  # Skipping blank space
-                                target_i_other = (other_tile-1) // 4  # Calculating target row of other tile
-                                # Check if other tile belongs in same row and is above it when it should be below, 
-                                # Essentially blocking the other tile
-                                if target_i_other == i and other_tile < tile:
-                                    total_distance += 2  # Minimum 2 moves to swap
-                    if target_j == j:  # Linear conflicts in column
-                        for k in range(i+1, 4):  # Checking all tiles below
-                            other_tile = board[k][j]
-                            if other_tile != 0:
-                                target_j_other = (other_tile-1) % 4  # Calculating target column of other tile
-                                # Check if other tile is 'blocking' current tile
-                                if target_j_other == j and other_tile < tile:
-                                    total_distance += 2  # Minimum 2 moves to swap
-        return total_distance * 2  # Scaling heuristic
+                    # Checking for and penalizing any linear conflicts (Removed to improve computational efficiency)
+                    # if target_i == i:  # Linear conflicts in row
+                    #     for k in range(j+1, 4):  # Checking all tiles to the right
+                    #         other_tile = board[i][k]
+                    #         if other_tile != 0:  # Skipping blank space
+                    #             target_i_other = (other_tile-1) // 4  # Calculating target row of other tile
+                    #             # Check if other tile belongs in same row and is above it when it should be below, 
+                    #             # Essentially blocking the other tile
+                    #             if target_i_other == i and other_tile < tile:
+                    #                 total_distance += 2  # Minimum 2 moves to swap
+                    # if target_j == j:  # Linear conflicts in column
+                    #     for k in range(i+1, 4):  # Checking all tiles below
+                    #         other_tile = board[k][j]
+                    #         if other_tile != 0:
+                    #             target_j_other = (other_tile-1) % 4  # Calculating target column of other tile
+                    #             # Check if other tile is 'blocking' current tile
+                    #             if target_j_other == j and other_tile < tile:
+                    #                 total_distance += 2  # Minimum 2 moves to swap
+        return total_distance * 1.5  # Scaling heuristic
     
     
     '''Gets Adjancent from provided blankspace
@@ -93,36 +93,42 @@ class puzzleSolver:
         iteration = 0 ##DEBUGGING
         board_t = tuple(tuple(row) for row in board)  # Convert to tuple of tuples
         open_list = []
-        heapq.heappush(open_list, (0, board_t))  # Add starting board configuration with cost (0)
         parent = {}
-        
         g_score = {board_t: 0}  # Cost from start to current board configuration
         f_score = {board_t: self.heuristic(board)}
+        visited = set()
+        heapq.heappush(open_list, (f_score[board_t], g_score[board_t], board_t))  # Add starting board configuration with cost (0)
         
         while open_list:
-            sleep(1)
             iteration += 1
-            c, current_board_config = heapq.heappop(open_list)  # Pop node with lowest code (tuple of tuples)
-            print("Current board config for iteration: ", iteration, ": ", current_board_config)
+            cur_f_score, cur_g_score, current_board_config = heapq.heappop(open_list)  # Pop node with lowest code (tuple of tuples)
+            print("Current board config for iteration ", iteration, ": ", current_board_config)
         
             # Check if current state is the goal state
             if self.is_solved(current_board_config):
                 # Return reconstructed optimal path
                 self.determine_optimal_path(parent, current_board_config)
                 return
+            
+            # Ensure that the current state has not been visited
+            if current_board_config in visited:
+                continue  # Skip this iteration
+            
+            visited.add(current_board_config)
                     
             # Get board configurations for adjacent tiles
             adjacent_board_configs = self.get_adjacent_board_configs(current_board_config)
             
             for adjacent_board_config in adjacent_board_configs:  # Long variable names because I am evil >:)
                 adjacent_board_config = tuple(tuple(row) for row in adjacent_board_config)  # Convert to hashable tuple
-                temp_score = g_score[current_board_config] + self.movement_cost
-                if adjacent_board_config not in g_score or temp_score < g_score[adjacent_board_config]:
+                temp_g_score = g_score[current_board_config] + self.movement_cost
+                temp_f_score = temp_g_score + self.heuristic(adjacent_board_config)
+                if adjacent_board_config not in g_score or temp_g_score < g_score[adjacent_board_config]:
                     parent[adjacent_board_config] = current_board_config
-                    g_score[adjacent_board_config] = temp_score
-                    f_score[adjacent_board_config] = temp_score + self.heuristic(adjacent_board_config)
+                    g_score[adjacent_board_config] = temp_g_score
+                    f_score[adjacent_board_config] = temp_f_score
                     # Push board configuration onto heap
-                    heapq.heappush(open_list, (f_score[adjacent_board_config], adjacent_board_config))
+                    heapq.heappush(open_list, (temp_f_score, temp_g_score, adjacent_board_config))
         print("Done calculating path")
             
     
