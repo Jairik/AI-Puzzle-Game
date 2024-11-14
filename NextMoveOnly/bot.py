@@ -1,8 +1,7 @@
-''' Class that holds AI functionality - JJ McCauley - 11/7/24 '''
+''' Class that holds attempted AI functionality to determine the next optimal move using A* Search - JJ McCauley - 11/13/24 '''
 
 import numpy as np  # Board calculations
 from random import randint, shuffle
-import heapq
 
 class bot:
     
@@ -43,11 +42,7 @@ class bot:
                 if tile != 0:
                     target_i, target_j = divmod(tile - 1, 4)  # Get target i, j
                     total_distance += abs(target_i - i) + abs(target_j - j)  # Add the distance of each
-                    
-                    # Adding forward weight penalty to tiles not at goal state
-                    if i != target_i and j != target_j:
-                        total_distance += 1  # Adding forward weight as penalty
-                    
+
                     # Checking for and penalizing any linear conflicts
                     if target_i == i:  # Linear conflicts in row
                         for k in range(j+1, 4):  # Checking all tiles to the right
@@ -86,8 +81,6 @@ class bot:
     def make_next_move(self, board, cords: tuple):
         
         adjacent_cords = self.get_adjacent(cords)  # Get list of tuples of adjacent tiles
-        print("Blank Position: ", cords)
-        print("Adjacent Tiles: ", adjacent_cords)
         self.total_cost+= 1
         moves = []  # Store the avaialble moves that have not yet been visited
         board_tuple = None  # Initialize to avoid comparison errors
@@ -111,24 +104,25 @@ class bot:
             
             # Calculate costs and add to adjacent_cord_costs
             hCost = self.heuristic(simulated_board)# Get heuristic cost
-            cur_cost = (hCost + 1)
+            gCost = self.total_cost+1
+            cur_cost = (hCost + gCost)
             moves.append((cur_cost, pos, simulated_board, simulated_board_tuple))
 
         # If moves is not empty, choose the best one
         if moves != []:
             # Get minimum cost
-            shuffle(moves)  # Avoid algorithm picking the first one in list, if all costs are same
-            min_cost = min(moves, key=lambda x: x[0])[0]
-            best_moves = [move for move in moves if move[0] == min_cost]
-            
+            shuffle(moves)  # Avoid algorithm picking the first one in list, if all costs are same (prevents infinite loops)
+            min_cost_move = min(moves, key=lambda x: x[0])
+            cost, (min_i, min_j), new_board, board_tuple = min_cost_move
             # If same costs, select move that won't go back to last state
-            for move in best_moves:
-                if move[1] != self.lastmove:
-                    selected_move = move
-                    break
-                else:
-                    selected_move = best_moves[0]
-            cost, (min_i, min_j), new_board, board_tuple = selected_move 
+            # for move in best_moves:
+            #     if move[1] != self.lastmove:
+            #         selected_move = move
+            #         break
+            #     else:
+            #         selected_move = best_moves[0]
+            # cost, (min_i, min_j), new_board, board_tuple = selected_move 
+            
         # If moves is empty, select a random adjacent tile to swap with
         else:
             print("SELECTING RANDOM TILE")
@@ -136,12 +130,12 @@ class bot:
             random_tile = adjacent_cords[random_tile_index]
             # Calculate cost of tile
             simulated_board = [row[:] for row in board]  # Deep copy of board
-            x_blank, y_blank = cords 
             simulated_board[x_blank][y_blank], simulated_board[random_tile[0]][random_tile[1]] = \
             simulated_board[random_tile[0]][random_tile[1]], simulated_board[x_blank][y_blank]
             hCost = self.heuristic(simulated_board)  # Get heuristic cost
             cost = (hCost + 1)
             min_i, min_j, new_board = random_tile[0], random_tile[1], simulated_board
+            board_tuple = tuple(tuple(row) for row in simulated_board)
         
         # Swap coordinates on the actual board
         board[:] = new_board[:]  # Deep copy board
@@ -150,9 +144,11 @@ class bot:
         if board_tuple:
             self.visited.add(board_tuple)
         
-        # Return swapped indexes and updated board
+        # Update last move & return swapped indexes and updated board
         print("Min i,j: ", min_i, ",", min_j, "  -  WITH COST OF: ", cost)
         print("Moves: ", moves)
         print("Visited: ", self.visited)
+        # Update last move, total cost, and return the new blank and the board
         self.lastmove = (x_blank, y_blank)
+        self.total_cost += 1
         return (min_i, min_j), board

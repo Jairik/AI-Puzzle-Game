@@ -7,7 +7,7 @@ from functools import partial  # Passing extra parameters through clicked button
 import sys
 import random as rand  # Shuffling board
 from time import sleep 
-from puzzleSolver import puzzleSolver  # Defined function for autocompleting puzzle
+from NextMoveOnly.bot import bot  # Defined function for autocompleting puzzle
 
 # Global Constants
 BOARD_SIZE = 4
