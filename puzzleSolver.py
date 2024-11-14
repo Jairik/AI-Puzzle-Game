@@ -1,6 +1,8 @@
 ''' Class that uses A* Search to calculate the best overall path - JJ McCauley - 11/13/24 '''
 
 from random import randint, shuffle
+from time import sleep
+
 import heapq
 
 class puzzleSolver:
@@ -55,14 +57,14 @@ class puzzleSolver:
     
     
     '''Returns a list of board configurations when swapping each adjacent tile (simulating board)'''
-    def get_adjacent_board_configs(self, board: list[list]) -> list:
+    def get_adjacent_board_configs(self, board_t: tuple[tuple]) -> list:
         adjacent_boards = []  # Hold the board configurations of adjacent boards
-        board_l = [list(row) for row in board]  # Convert from tuple of tuples to list of lists
+        board_l = [list(row) for row in board_t]  # Convert from tuple of tuples to list of lists
         blank_pos = self.find_blank(board_l)
         adjacent_tile_coordinates = self.get_adjacent_tiles(blank_pos)
         # Simulate each board shift
         for pos in adjacent_tile_coordinates:
-            simulated_board = [row[:] for row in board_l]  # Deep copy
+            simulated_board = [row[:] for row in board_l]  # Deep copy of board list
              # Swap given indexes on temporary board
             simulated_board[blank_pos[0]][blank_pos[1]], simulated_board[pos[0]][pos[1]] = \
             simulated_board[pos[0]][pos[1]], simulated_board[blank_pos[0]][blank_pos[1]]
@@ -88,6 +90,7 @@ class puzzleSolver:
     '''Calculates the optimal tree using A* Search
     Parameters: current board (2d list) and coordinates of blank space '''
     def calculate_path(self, board: list[list]) -> None:
+        iteration = 0 ##DEBUGGING
         board_t = tuple(tuple(row) for row in board)  # Convert to tuple of tuples
         open_list = []
         heapq.heappush(open_list, (0, board_t))  # Add starting board configuration with cost (0)
@@ -97,12 +100,15 @@ class puzzleSolver:
         f_score = {board_t: self.heuristic(board)}
         
         while open_list:
+            sleep(1)
+            iteration += 1
             c, current_board_config = heapq.heappop(open_list)  # Pop node with lowest code (tuple of tuples)
+            print("Current board config for iteration: ", iteration, ": ", current_board_config)
         
             # Check if current state is the goal state
             if self.is_solved(current_board_config):
                 # Return reconstructed optimal path
-                self.optimal_moves = self.determine_optimal_path(parent, current_board_config)
+                self.determine_optimal_path(parent, current_board_config)
                 return
                     
             # Get board configurations for adjacent tiles
