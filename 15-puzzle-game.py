@@ -16,7 +16,7 @@ buttons = [[None for _ in range(BOARD_SIZE)] for _ in range(BOARD_SIZE)] # Empty
 b_pos = (-1, 1)  # Current space of the blank, removes need for finding during every successful swap
 move_count = 0  # Move counter to be displayed 
 grid = QGridLayout()  # Grid which will hold the buttons
-bot = bot()
+autoSolver = puzzleSolver()
 
 ''' GUI interface (PYQT5) & Intra-game Logic '''    
 def main():
@@ -76,27 +76,29 @@ def main():
     window.setLayout(root_layout)
     window.show()
     
-    run_bot(board, moves_label)
+    puzzle_solver(board, moves_label)
     sys.exit(app.exec_())
      
 '''Run bot - Begins running the autocomplete bot for the puzzle using imported bot functions
 Parameters: Board (2d array) '''
-def run_bot(board, moves_label):    
-    global b_pos, move_count
+def puzzle_solver(board, moves_label):    
+    global move_count
+    autoSolver.calculate_path(board)
     
     # Define a function for each iteration of the bot's movement
-    def bot_iteration(board):
-        global b_pos, move_count
-        print("\n\nExecuting Bot Iteration #", move_count)
-
+    def autoSolver_iteration(board):
+        global move_count
+        
         # Check for win
         if is_solved(board):
             QTimer.singleShot(0, lambda: is_winner(moves_label))
             #TODO: Add play again feature here
         
-        # Get the optimal move from the bot. Will update board within function (by reference)
-        b_pos, board = bot.make_next_move(board, b_pos)
-        print("Blank position After Make_Next_Move function: ", b_pos)
+        # Get the optimal move from the AI
+        move_i, move_j = autoSolver.get_move(board)
+        
+        # Make the swap on the board
+        shift_board(move_i, move_j, board)
         
         # Increment move counter and update the GUI
         move_count += 1
@@ -104,10 +106,10 @@ def run_bot(board, moves_label):
         moves_label.setText(f"Moves Made: {move_count}")
         
         # Schedule the next iteration after 5 second sleep
-        QTimer.singleShot(200, lambda: bot_iteration(board))
+        QTimer.singleShot(2000, lambda: autoSolver_iteration(board))
 
     # Start the bot iteration
-    bot_iteration(board)
+    autoSolver_iteration(board)
 
 
 '''Determine whether board is solvable
