@@ -81,7 +81,8 @@ def main():
      
 '''Run bot - Begins running the autocomplete bot for the puzzle using imported bot functions
 Parameters: Board (2d array) '''
-def run_bot(board, moves_label):    
+def run_bot(board, moves_label):  
+    sleep(8)  # Sleep 8 second upon boot for testing  
     global b_pos, move_count
     
     # Define a function for each iteration of the bot's movement
@@ -92,7 +93,6 @@ def run_bot(board, moves_label):
         # Check for win
         if is_solved(board):
             QTimer.singleShot(0, lambda: is_winner(moves_label))
-            #TODO: Add play again feature here
         
         # Get the optimal move from the bot. Will update board within function (by reference)
         b_pos, board = bot.make_next_move(board, b_pos)
@@ -103,8 +103,8 @@ def run_bot(board, moves_label):
         update_buttons(board)
         moves_label.setText(f"Moves Made: {move_count}")
         
-        # Schedule the next iteration after 5 second sleep
-        QTimer.singleShot(20, lambda: bot_iteration(board))
+        # Schedule the next iteration after 6 second sleep
+        QTimer.singleShot(6000, lambda: bot_iteration(board))
 
     # Start the bot iteration
     bot_iteration(board)

@@ -73,10 +73,7 @@ class puzzleSolver:
     '''Helper function that checks if the board is solved
     Returns: Whether the board was solved (True if solved, False if not)'''
     def is_solved(self, board: tuple) -> bool:
-        #return board == self.TARGET_BOARD
-        if board == self.TARGET_BOARD:
-            print("Board is solved from within puzzleSolver class!")
-            return True
+        return board == self.TARGET_BOARD
     
     '''Calculates the optimal tree using A* Search
     Parameters: current board (2d list) and coordinates of blank space '''
@@ -92,21 +89,15 @@ class puzzleSolver:
         heapq.heappush(open_list, (start_h, 0, start_h, board_t, path))  # Add starting board configuration
         
         while open_list and board_unsolved:
-            #sleep(.1)
-            iteration += 1
             cur_f_cost, cur_g_cost, _, current_board_config, cur_path = heapq.heappop(open_list)  # Pop node with lowest code (tuple of tuples)
             blank_pos = current_board_config.index(0)
-            # Debugging
-            if (iteration%50000) == 0:
-                print(f"Iteration {iteration}   Board: {current_board_config}   Cost: {cur_f_cost}")
-        
+
             # Check is current configuration has already been visited
             if current_board_config in visited and cur_g_cost > visited[current_board_config]:
                 continue  # Skip if already processed
         
             # Check if current state is the goal state
             if self.is_solved(current_board_config):
-                print("-------------BOARD IS SOLVED!!!!!!!---------------------")
                 self.optimal_moves = cur_path  # Assigning optimal path
                 board_unsolved = False
                 return
@@ -122,9 +113,7 @@ class puzzleSolver:
                 if new_board_config not in visited or new_g_cost < visited[new_board_config]:
                     visited[new_board_config] = new_g_cost
                     heapq.heappush(open_list, (new_f_cost, new_g_cost, new_h_cost, new_board_config, cur_path + [possible_move]))       
-                             
-        print("Done calculating path")
-        
+    # Path is now calculated
     
     ''' Chooses the next best move from the optimal path '''
     def get_move(self, board: list[list]) -> tuple[int, int]:

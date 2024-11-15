@@ -85,7 +85,7 @@ Parameters: Board (2d array) '''
 def puzzle_solver(board, moves_label):    
     global move_count
     calibration_done = False  # Flag to ensure calibration() does not run repeatedly, for some reason
-    
+    sleep(5)  # Initial Sleep for Testing
     @ staticmethod
     def calibrate(board):
         if calibration_done == False:
@@ -134,8 +134,8 @@ def puzzle_solver(board, moves_label):
             update_buttons(board)
             moves_label.setText(f"Moves Made: {move_count}")
             
-            # Schedule the next iteration after 2 second sleep
-            QTimer.singleShot(2000, lambda: autoSolver_iteration(board, moves_label))
+            # Schedule the next iteration after 8 second sleep
+            QTimer.singleShot(8000, lambda: autoSolver_iteration(board, moves_label))
 
     # Start the bot iteration
     autoSolver_iteration(board, moves_label)

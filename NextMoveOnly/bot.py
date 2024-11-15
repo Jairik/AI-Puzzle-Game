@@ -83,7 +83,7 @@ class bot:
     def make_next_move(self, board, cords: tuple):
         
         adjacent_cords = self.get_adjacent(cords)  # Get list of tuples of adjacent tiles
-        self.total_cost+= 1
+        self.total_cost += 1
         moves = []  # Store the avaialble moves that have not yet been visited
         board_tuple = None  # Initialize to avoid comparison errors
         
@@ -116,14 +116,6 @@ class bot:
             shuffle(moves)  # Avoid algorithm picking the first one in list, if all costs are same (prevents infinite loops)
             min_cost_move = min(moves, key=lambda x: x[0])
             cost, (min_i, min_j), new_board, board_tuple = min_cost_move
-            # If same costs, select move that won't go back to last state
-            # for move in best_moves:
-            #     if move[1] != self.lastmove:
-            #         selected_move = move
-            #         break
-            #     else:
-            #         selected_move = best_moves[0]
-            # cost, (min_i, min_j), new_board, board_tuple = selected_move 
             
         # If moves is empty, select a random adjacent tile to swap with
         else:
