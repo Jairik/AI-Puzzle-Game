@@ -7,7 +7,7 @@ from functools import partial  # Passing extra parameters through clicked button
 import sys
 import random as rand  # Shuffling board
 from time import sleep 
-from NextMoveOnly.bot import bot  # Defined function for autocompleting puzzle
+from bot import bot  # Defined function for autocompleting puzzle
 
 # Global Constants
 BOARD_SIZE = 4
@@ -104,7 +104,7 @@ def run_bot(board, moves_label):
         moves_label.setText(f"Moves Made: {move_count}")
         
         # Schedule the next iteration after 5 second sleep
-        QTimer.singleShot(200, lambda: bot_iteration(board))
+        QTimer.singleShot(20, lambda: bot_iteration(board))
 
     # Start the bot iteration
     bot_iteration(board)

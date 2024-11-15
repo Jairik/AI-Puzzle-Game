@@ -84,6 +84,7 @@ Parameters: Board (2d array) '''
 def puzzle_solver(board, moves_label):    
     global move_count
     autoSolver.calculate_path(board)
+    print("Path has been calculated")
     
     # Define a function for each iteration of the bot's movement
     def autoSolver_iteration(board):
