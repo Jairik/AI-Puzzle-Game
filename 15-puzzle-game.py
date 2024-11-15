@@ -84,12 +84,14 @@ def main():
 Parameters: Board (2d array) '''
 def puzzle_solver(board, moves_label):    
     global move_count
+    calibration_done = False  # Flag to ensure calibration() does not run repeatedly, for some reason
     
     @ staticmethod
     def calibrate(board):
-        autoSolver.calculate_path(board)
-        print("Path has been calculated")
-        print(autoSolver.optimal_moves)
+        if calibration_done == False:
+            autoSolver.calculate_path(board)
+            print("Path has been calculated")
+            print(autoSolver.optimal_moves)
     
     # Adding a loading window while determining best path
     m = "Calibrating bot, please wait..."
@@ -101,7 +103,10 @@ def puzzle_solver(board, moves_label):
     Bot_Window.show()
     QApplication.processEvents()
     calibrate(board)
+    print("Calibration Complete!")
     Bot_Window.close()
+    calibration_done = True
+    while calibration_done == False: pass  # Triple checking that calibrate is finished execution
     
     # Define a function for each iteration of the bot's movement
     def autoSolver_iteration(board, moves_label):
@@ -111,20 +116,26 @@ def puzzle_solver(board, moves_label):
         if is_solved(board):
             QTimer.singleShot(0, lambda: is_winner(moves_label))
             return  # Stop further recursion
-        
-        # Get the optimal move from the AI
-        move_i, move_j = autoSolver.get_move(board)
-        
-        # Make the swap on the board
-        shift_board(move_i, move_j, board)
-        
-        # Increment move counter and update the GUI
-        move_count += 1
-        update_buttons(board)
-        moves_label.setText(f"Moves Made: {move_count}")
-        
-        # Schedule the next iteration after 2 second sleep
-        QTimer.singleShot(2000, lambda: autoSolver_iteration(board, moves_label))
+        # Not a winner, continue with logic
+        else:
+            # Get the optimal move from the AI
+            move_i, move_j = autoSolver.get_move(board)
+            
+            # If get_move determines board is done, return (double checking)
+            if move_i == -1 and move_j == -1:
+                QTimer.singleShot(0, lambda: is_winner(moves_label))
+                return  # Stop further recursion
+            
+            # Make the swap on the board
+            shift_board(move_i, move_j, board)
+            
+            # Increment move counter and update the GUI
+            move_count += 1
+            update_buttons(board)
+            moves_label.setText(f"Moves Made: {move_count}")
+            
+            # Schedule the next iteration after 2 second sleep
+            QTimer.singleShot(2000, lambda: autoSolver_iteration(board, moves_label))
 
     # Start the bot iteration
     autoSolver_iteration(board, moves_label)

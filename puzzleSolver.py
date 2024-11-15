@@ -39,28 +39,28 @@ class puzzleSolver:
             i, j = index // 4, index % 4
             total_distance += abs(target_i - i) + abs(target_j - j)  # Add the distance of each
             # Get the total number of misplacements
-            # if index != (target_i * 4 + target_j):
-            #     num_misplaced += 1
+            if index != (target_i * 4 + target_j):
+                num_misplaced += 1
             # Checking for and penalizing any linear conflicts (Removed to improve computational efficiency)
-            # for row in range(4):
-            #     tiles_in_cur_row = []
-            #     for col in range(4):
-            #         index = row * 4 + col
-            #         tile = board[index]
-            #         if tile == 0:
-            #             continue
-            #         target_i, target_j = divmod(tile - 1, 4)
-            #         if target_i == row:
-            #             tiles_in_cur_row.append((col, target_j))
-            #     # Count linear conflicts in list
-            #     for i in range(len(tiles_in_cur_row)):
-            #         for j in range(i + 1, len(tiles_in_cur_row)):
-            #             pos_i, target_i = tiles_in_cur_row[i]
-            #             pos_j, target_j = tiles_in_cur_row[j]
-            #             if target_i > target_j and pos_i < pos_j:
-            #                 conflicts += 2
+            for row in range(4):
+                tiles_in_cur_row = []
+                for col in range(4):
+                    index = row * 4 + col
+                    tile = board[index]
+                    if tile == 0:
+                        continue
+                    target_i, target_j = divmod(tile - 1, 4)
+                    if target_i == row:
+                        tiles_in_cur_row.append((col, target_j))
+                # Count linear conflicts in list
+                for i in range(len(tiles_in_cur_row)):
+                    for j in range(i + 1, len(tiles_in_cur_row)):
+                        pos_i, target_i = tiles_in_cur_row[i]
+                        pos_j, target_j = tiles_in_cur_row[j]
+                        if target_i > target_j and pos_i < pos_j:
+                            conflicts += 2
                     
-        return (total_distance * 1.5) #+ (conflicts * .5)) #(num_misplaced * .5))
+        return ((total_distance * 1.5) + (conflicts * .5) + (num_misplaced * .5))
     
     
     '''Returns a list of board configurations when swapping each adjacent tile (simulating board)'''
@@ -73,18 +73,20 @@ class puzzleSolver:
     '''Helper function that checks if the board is solved
     Returns: Whether the board was solved (True if solved, False if not)'''
     def is_solved(self, board: tuple) -> bool:
-        return board == self.TARGET_BOARD
-    
+        #return board == self.TARGET_BOARD
+        if board == self.TARGET_BOARD:
+            print("Board is solved from within puzzleSolver class!")
+            return True
     
     '''Calculates the optimal tree using A* Search
     Parameters: current board (2d list) and coordinates of blank space '''
     def calculate_path(self, board: list[list]) -> None:
-        iteration = 0 ##DEBUGGING
+        iteration = 0 # Store current iteration of calculate_path
         board_t = tuple(board[i][j] for i in range(4) for j in range(4))  # Convert to flat, hashable tuple board
         self.initial_board_config = board_t
-        open_list = []
-        path = []
-        visited = {board_t: 0}
+        open_list = []  # Heap to store different moves
+        path = []  # List to hold 1-d tile swap coordinate
+        visited = {board_t: 0}  
         start_h = self.heuristic(board_t)
         board_unsolved = True  # Extra layer of protection to ensure algorithm doesn't loop back onto itself
         heapq.heappush(open_list, (start_h, 0, start_h, board_t, path))  # Add starting board configuration
@@ -92,11 +94,11 @@ class puzzleSolver:
         while open_list and board_unsolved:
             #sleep(.1)
             iteration += 1
-            if (iteration%10000) == 0:
-                print(f"Iteration {iteration}")
             cur_f_cost, cur_g_cost, _, current_board_config, cur_path = heapq.heappop(open_list)  # Pop node with lowest code (tuple of tuples)
             blank_pos = current_board_config.index(0)
-            #print(f"Popping Iteration {iteration}, Cost: {cur_f_cost}, Board: {current_board_config}, Heap Size: {len(open_list)}")
+            # Debugging
+            if (iteration%50000) == 0:
+                print(f"Iteration {iteration}   Board: {current_board_config}")
         
             # Check is current configuration has already been visited
             if current_board_config in visited and cur_g_cost > visited[current_board_config]:
@@ -141,8 +143,8 @@ class puzzleSolver:
         else:
             self.move_counter += 1
         # Get and return the index of the tile to swap with in next move
-        blank_pos = self.optimal_moves[0]
-        next_path = self.optimal_moves.pop(0)
+        cur_blank_pos = self.optimal_moves[0]
+        blank_pos = self.optimal_moves.pop(0)
         next_move_i, next_move_j = divmod(blank_pos, 4)
         return next_move_i, next_move_j
     
