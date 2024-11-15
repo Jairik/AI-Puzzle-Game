@@ -79,21 +79,38 @@ def main():
     puzzle_solver(board, moves_label)
     sys.exit(app.exec_())
      
+     
 '''Run bot - Begins running the autocomplete bot for the puzzle using imported bot functions
 Parameters: Board (2d array) '''
 def puzzle_solver(board, moves_label):    
     global move_count
-    autoSolver.calculate_path(board)
-    print("Path has been calculated")
+    
+    @ staticmethod
+    def calibrate(board):
+        autoSolver.calculate_path(board)
+        print("Path has been calculated")
+        print(autoSolver.optimal_moves)
+    
+    # Adding a loading window while determining best path
+    m = "Calibrating bot, please wait..."
+    Bot_Window = QMessageBox()
+    Bot_Window.setStyleSheet("background-color: #333333; color: white; font-family: Tahoma; font-size: 48px;")
+    Bot_Window.setText(m)
+    Bot_Window.setWindowTitle("Configuring Bot")
+    Bot_Window.setStandardButtons(QMessageBox.NoButton)  # Remove exit button
+    Bot_Window.show()
+    QApplication.processEvents()
+    calibrate(board)
+    Bot_Window.close()
     
     # Define a function for each iteration of the bot's movement
-    def autoSolver_iteration(board):
+    def autoSolver_iteration(board, moves_label):
         global move_count
         
         # Check for win
         if is_solved(board):
             QTimer.singleShot(0, lambda: is_winner(moves_label))
-            #TODO: Add play again feature here
+            return  # Stop further recursion
         
         # Get the optimal move from the AI
         move_i, move_j = autoSolver.get_move(board)
@@ -107,10 +124,10 @@ def puzzle_solver(board, moves_label):
         moves_label.setText(f"Moves Made: {move_count}")
         
         # Schedule the next iteration after 2 second sleep
-        QTimer.singleShot(2000, lambda: autoSolver_iteration(board))
+        QTimer.singleShot(2000, lambda: autoSolver_iteration(board, moves_label))
 
     # Start the bot iteration
-    autoSolver_iteration(board)
+    autoSolver_iteration(board, moves_label)
 
 
 '''Determine whether board is solvable
