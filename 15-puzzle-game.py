@@ -106,7 +106,7 @@ def puzzle_solver(board, moves_label):
         update_buttons(board)
         moves_label.setText(f"Moves Made: {move_count}")
         
-        # Schedule the next iteration after 5 second sleep
+        # Schedule the next iteration after 2 second sleep
         QTimer.singleShot(2000, lambda: autoSolver_iteration(board))
 
     # Start the bot iteration
