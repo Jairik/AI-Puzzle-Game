@@ -1,4 +1,4 @@
-from NextMove.bot import bot
+from NextMoveOnly.bot import bot
 
 b_pos = (2, 2)  # Hardcoded for test case
 bot = bot()  # Make a new bot object

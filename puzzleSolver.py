@@ -30,7 +30,7 @@ class puzzleSolver:
     '''Calculates the Manhattan Distance of the provided board, also considering linear conflicts'''
     def heuristic(self, board: tuple) -> float:
         total_distance = 0
-        conflicts = 0
+        # conflicts = 0  Removed due to computational cost
         num_misplaced = 0
         for index, tile in enumerate(board):
             if tile == 0:
@@ -42,25 +42,25 @@ class puzzleSolver:
             if index != (target_i * 4 + target_j):
                 num_misplaced += 1
             # Checking for and penalizing any linear conflicts (Removed to improve computational efficiency)
-            for row in range(4):
-                tiles_in_cur_row = []
-                for col in range(4):
-                    index = row * 4 + col
-                    tile = board[index]
-                    if tile == 0:
-                        continue
-                    target_i, target_j = divmod(tile - 1, 4)
-                    if target_i == row:
-                        tiles_in_cur_row.append((col, target_j))
-                # Count linear conflicts in list
-                for i in range(len(tiles_in_cur_row)):
-                    for j in range(i + 1, len(tiles_in_cur_row)):
-                        pos_i, target_i = tiles_in_cur_row[i]
-                        pos_j, target_j = tiles_in_cur_row[j]
-                        if target_i > target_j and pos_i < pos_j:
-                            conflicts += 2
+            # for row in range(4):
+            #     tiles_in_cur_row = []
+            #     for col in range(4):
+            #         index = row * 4 + col
+            #         tile = board[index]
+            #         if tile == 0:
+            #             continue
+            #         target_i, target_j = divmod(tile - 1, 4)
+            #         if target_i == row:
+            #             tiles_in_cur_row.append((col, target_j))
+            #     # Count linear conflicts in list
+            #     for i in range(len(tiles_in_cur_row)):
+            #         for j in range(i + 1, len(tiles_in_cur_row)):
+            #             pos_i, target_i = tiles_in_cur_row[i]
+            #             pos_j, target_j = tiles_in_cur_row[j]
+            #             if target_i > target_j and pos_i < pos_j:
+            #                 conflicts += 2
                     
-        return ((total_distance * 1.5) + (conflicts * .5) + (num_misplaced * .5))
+        return ((total_distance * 1.5) + (num_misplaced * .5)) # + (conflicts * .5)
     
     
     '''Returns a list of board configurations when swapping each adjacent tile (simulating board)'''
@@ -98,7 +98,7 @@ class puzzleSolver:
             blank_pos = current_board_config.index(0)
             # Debugging
             if (iteration%50000) == 0:
-                print(f"Iteration {iteration}   Board: {current_board_config}")
+                print(f"Iteration {iteration}   Board: {current_board_config}   Cost: {cur_f_cost}")
         
             # Check is current configuration has already been visited
             if current_board_config in visited and cur_g_cost > visited[current_board_config]:
@@ -134,14 +134,6 @@ class puzzleSolver:
             if self.is_solved(board):
                 return (-1, -1)  # Signal values indicating won board
                 
-        last_board_config = self.optimal_moves.pop(0)
-        if(board_t != last_board_config):
-            # Calculate path for the next best working board
-            self.move_counter = 0
-            self.optimal_moves = []
-            self.calculate_path(board)
-        else:
-            self.move_counter += 1
         # Get and return the index of the tile to swap with in next move
         cur_blank_pos = self.optimal_moves[0]
         blank_pos = self.optimal_moves.pop(0)

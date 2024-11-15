@@ -308,7 +308,7 @@ def is_winner(moves_label):
             b.setStyleSheet("background-color: #015701; color: white; font-family: Tahoma; font-size: 42px;")
     
     # Win Dialouge Box
-    m = f"YOU WIN!!!\nMoves: {move_count}"
+    m = f"Bot Won in... \nMoves: {move_count}\nThink you can do better?"
      
     # Making a message box and displaying it
     win_message = QMessageBox()
@@ -317,7 +317,7 @@ def is_winner(moves_label):
     win_message.setWindowTitle("WINNER!")
  
     # Make "Play Again" and "Quit" Buttons
-    play_again_button = QPushButton("Play Again")
+    play_again_button = QPushButton("Try it myself")
     play_again_button.setStyleSheet("background-color: #4f2b01; color: #cfcccc; font-family: Tahoma; font-size: 24px;")
     quit_button = QPushButton("Quit")
     quit_button.setStyleSheet("background-color: #333333; color: #6b6a6a; font-family: Tahoma; font-size: 24px;")

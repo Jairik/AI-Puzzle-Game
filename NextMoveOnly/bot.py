@@ -1,4 +1,6 @@
-''' Class that holds attempted AI functionality to determine the next optimal move using A* Search - JJ McCauley - 11/13/24 '''
+''' Class that holds attempted AI functionality to determine the next optimal move ONLY using A* Search 
+    Note: This is a suboptimal solution, see puzzleSolver.py for better, optimal solution to this problem
+    JJ McCauley - 11/13/24 '''
 
 import numpy as np  # Board calculations
 from random import randint, shuffle
@@ -125,7 +127,6 @@ class bot:
             
         # If moves is empty, select a random adjacent tile to swap with
         else:
-            print("SELECTING RANDOM TILE")
             random_tile_index = randint(0, len(adjacent_cords)-1)
             random_tile = adjacent_cords[random_tile_index]
             # Calculate cost of tile
@@ -144,10 +145,6 @@ class bot:
         if board_tuple:
             self.visited.add(board_tuple)
         
-        # Update last move & return swapped indexes and updated board
-        print("Min i,j: ", min_i, ",", min_j, "  -  WITH COST OF: ", cost)
-        print("Moves: ", moves)
-        print("Visited: ", self.visited)
         # Update last move, total cost, and return the new blank and the board
         self.lastmove = (x_blank, y_blank)
         self.total_cost += 1
