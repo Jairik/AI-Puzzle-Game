@@ -82,32 +82,30 @@ def main():
 '''Run bot - Begins running the autocomplete bot for the puzzle using imported bot functions
 Parameters: Board (2d array) '''
 def run_bot(board, moves_label):  
-    sleep(8)  # Sleep 8 second upon boot for testing  
     global b_pos, move_count
     
     # Define a function for each iteration of the bot's movement
-    def bot_iteration(board):
+    def bot_iteration(board, moves_label):
         global b_pos, move_count
-        print("\n\nExecuting Bot Iteration #", move_count)
 
         # Check for win
         if is_solved(board):
             QTimer.singleShot(0, lambda: is_winner(moves_label))
+            return
         
         # Get the optimal move from the bot. Will update board within function (by reference)
         b_pos, board = bot.make_next_move(board, b_pos)
-        print("Blank position After Make_Next_Move function: ", b_pos)
         
         # Increment move counter and update the GUI
         move_count += 1
         update_buttons(board)
         moves_label.setText(f"Moves Made: {move_count}")
         
-        # Schedule the next iteration after 6 second sleep
-        QTimer.singleShot(6000, lambda: bot_iteration(board))
+        # Schedule the next iteration
+        QTimer.singleShot(0, lambda: bot_iteration(board, moves_label))
 
     # Start the bot iteration
-    bot_iteration(board)
+    bot_iteration(board, moves_label)
 
 
 '''Determine whether board is solvable

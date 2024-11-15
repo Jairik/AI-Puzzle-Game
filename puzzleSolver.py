@@ -1,8 +1,5 @@
 ''' Class that uses A* Search to calculate the best overall path - JJ McCauley - 11/13/24 '''
 
-from random import randint, shuffle
-from time import sleep
-
 import heapq
 
 class puzzleSolver:
@@ -10,7 +7,6 @@ class puzzleSolver:
     ''' Initialize variables and final optimal path on create '''
     def __init__(self, m_cost = 1):
         self.move_counter = 0
-        self.pop_counter = 0
         self.initial_board_config = None
         self.visited = set()
         self.optimal_moves: list[int] = []  # List of 1-d representations for optimal moves
@@ -70,15 +66,16 @@ class puzzleSolver:
         new_board_config[b], new_board_config[move] = new_board_config[move], new_board_config[b]  # Swap blank & move
         return tuple(new_board_config)  # Return tuple of swapped indecies (hashable)
     
+    
     '''Helper function that checks if the board is solved
     Returns: Whether the board was solved (True if solved, False if not)'''
     def is_solved(self, board: tuple) -> bool:
         return board == self.TARGET_BOARD
     
+    
     '''Calculates the optimal tree using A* Search
     Parameters: current board (2d list) and coordinates of blank space '''
     def calculate_path(self, board: list[list]) -> None:
-        iteration = 0 # Store current iteration of calculate_path
         board_t = tuple(board[i][j] for i in range(4) for j in range(4))  # Convert to flat, hashable tuple board
         self.initial_board_config = board_t
         open_list = []  # Heap to store different moves
@@ -114,6 +111,7 @@ class puzzleSolver:
                     visited[new_board_config] = new_g_cost
                     heapq.heappush(open_list, (new_f_cost, new_g_cost, new_h_cost, new_board_config, cur_path + [possible_move]))       
     # Path is now calculated
+    
     
     ''' Chooses the next best move from the optimal path '''
     def get_move(self, board: list[list]) -> tuple[int, int]:
